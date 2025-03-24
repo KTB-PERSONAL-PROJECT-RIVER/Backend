@@ -5,14 +5,6 @@ on:
     branches:
       - main
 
-env:
-  AWS_REGION: ap-northeast-2
-  ECR_REPO: spring-boot-app
-  ECR_REGISTRY: <ACCOUNT_ID>.dkr.ecr.ap-northeast-2.amazonaws.com
-  CODEDEPLOY_APP: myapp-codedeploy-app
-  CODEDEPLOY_GROUP: myapp-deployment-group
-  S3_BUCKET: myapp-codedeploy-bucket
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -26,17 +18,18 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Login to ECR
         run: |
-          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
+          docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t $ECR_REPO .
-          docker tag $ECR_REPO:latest $ECR_REGISTRY/$ECR_REPO:latest
-          docker push $ECR_REGISTRY/$ECR_REPO:latest
+          docker build -t ${{ secrets.ECR_REPO }} .
+          docker tag ${{ secrets.ECR_REPO }}:latest ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPO }}:latest
+          docker push ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPO }}:latest
 
       - name: Zip deployment package
         run: |
@@ -44,12 +37,12 @@ jobs:
 
       - name: Upload to S3
         run: |
-          aws s3 cp spring-boot-deploy.zip s3://$S3_BUCKET/
+          aws s3 cp spring-boot-deploy.zip s3://${{ secrets.S3_BUCKET }}/
 
       - name: Deploy with CodeDeploy
         run: |
           aws deploy create-deployment \
-            --application-name $CODEDEPLOY_APP \
-            --deployment-group-name $CODEDEPLOY_GROUP \
-            --s3-location bucket=$S3_BUCKET,key=spring-boot-deploy.zip,bundleType=zip \
+            --application-name ${{ secrets.CODEDEPLOY_APP }} \
+            --deployment-group-name ${{ secrets.CODEDEPLOY_GROUP }} \
+            --s3-location bucket=${{ secrets.S3_BUCKET }},key=spring-boot-deploy.zip,bundleType=zip \
             --file-exists-behavior OVERWRITE
