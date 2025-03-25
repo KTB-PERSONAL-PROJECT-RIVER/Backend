@@ -1,13 +1,18 @@
 version: 0.0
 os: linux
+
 files:
   - source: scripts/
     destination: /home/ubuntu/deploy/scripts
 
+  - source: build/libs/app.jar
+    destination: /home/ubuntu/deploy
+
 hooks:
   ApplicationStop:
     - location: scripts/stop.sh
-      timeout: 60
+      timeout: 30
+
   AfterInstall:
     - location: scripts/start.sh
-      timeout: 120
+      timeout: 60

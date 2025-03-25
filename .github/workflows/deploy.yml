@@ -1,4 +1,4 @@
-name: CI/CD
+name: CI/CD (Jar Deploy)
 
 on:
   push:
@@ -13,6 +13,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build Spring Boot App
+        run: ./gradlew clean bootJar
+
+      - name: Generate deployment package (zip)
+        run: |
+          zip -r spring-boot-deploy.zip appspec.yml scripts/ build/libs/app.jar
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -20,24 +33,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Login to ECR
-        run: |
-          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
-          docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
-
-      - name: Build and Push Docker Image
-        run: |
-          docker build -t ${{ secrets.ECR_REPO }} .
-          docker tag ${{ secrets.ECR_REPO }}:latest ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPO }}:latest
-          docker push ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPO }}:latest
-
-      - name: Zip deployment package
-        run: |
-          zip -r spring-boot-deploy.zip appspec.yml scripts/
-
       - name: Upload to S3
         run: |
-          aws s3 cp spring-boot-deploy.zip s3://${{ secrets.S3_BUCKET }}/
+          aws s3 cp spring-boot-deploy.zip s3://${{ secrets.S3_BUCKET }}/spring-boot-deploy.zip
 
       - name: Deploy with CodeDeploy
         run: |
