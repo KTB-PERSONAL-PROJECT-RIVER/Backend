@@ -22,9 +22,6 @@ jobs:
       - name: Build Spring Boot App
         run: ./gradlew clean bootJar
 
-      - name: Rename jar to app.jar
-        run: mv build/libs/*.jar build/libs/app.jar
-
       - name: Zip deployment package
         run: zip -r spring-boot-deploy.zip appspec.yml scripts/ build/libs/app.jar
 
