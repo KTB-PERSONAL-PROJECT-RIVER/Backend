@@ -25,9 +25,8 @@ jobs:
           distribution: 'temurin'
 
       - name: Copy application.yml from submodule
-        run: |
-          cp Backend-properties/application-prod.yml src/main/resources/application-prod.yml
-          shell: bash
+        shell: bash
+        run: cp Backend-properties/application-prod.yml src/main/resources/application-prod.yml
 
       - name: Build Spring Boot App
         run: ./gradlew clean bootJar
