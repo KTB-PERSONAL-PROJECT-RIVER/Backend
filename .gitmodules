@@ -1,0 +1,3 @@
+[submodule "Backend-properties"]
+	path = Backend-properties
+	url = https://github.com/KTB-PERSONAL-PROJECT-RIVER/Backend-properties.git
