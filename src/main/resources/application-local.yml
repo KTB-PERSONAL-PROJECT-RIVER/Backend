@@ -1,0 +1,7 @@
+spring:
+  web:
+    cors:
+      allowed-origin-patterns: "https://*.riverendingstory.site"
+      allowed-methods: "*"
+      allowed-headers: "*"
+      allow-credentials: true
