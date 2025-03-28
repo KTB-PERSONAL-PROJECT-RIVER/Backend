@@ -1,7 +1,9 @@
 spring:
   web:
     cors:
-      allowed-origin-patterns: "https://*.riverendingstory.site"
+      allowed-origins:
+        - "https://riverendingstory.site"
+        - "https://www.riverendingstory.site"
       allowed-methods: "*"
       allowed-headers: "*"
       allow-credentials: true
