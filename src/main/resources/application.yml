@@ -1,9 +1,7 @@
-spring.profiles.default: prod  #배포시 prod 변경
-
----
-
-spring.config.activate.on-profile: local
-
----
-
-spring.config.activate.on-profile: prod
+spring:
+  web:
+    cors:
+      allowed-origin-patterns: "https://*.riverendingstory.site"
+      allowed-methods: "*"
+      allowed-headers: "*"
+      allow-credentials: true
